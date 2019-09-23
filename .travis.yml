@@ -2,18 +2,20 @@ dist: xenial
 language: python
 
 python:
+  - "3.5"
   - "3.6"
   - "3.7"
+  - "pypy3.5"
 
 install:
-  - pip install pytest coverage pytest-cov flake8 black
+  - pip install -r requirements-dev.txt
   - pip install -e ./
 
 script:
-  - flake8 cons
-  - flake8 tests
-  - black --check cons
-  - black --check tests
+  - flake8 cons tests
+  - if [[ `command -v black` ]]; then
+      black --check cons tests;
+    fi
   - pytest -v tests/ --cov=cons/
 
 after_success:

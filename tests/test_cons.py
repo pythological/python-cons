@@ -163,7 +163,7 @@ def test_car_cdr():
     assert cdr(cons("a", ["b"])) == ["b"]
     assert car(OrderedDict([(1, 2), (3, 4)])) == (1, 2)
     assert cdr(OrderedDict([(1, 2), (3, 4)])) == [(3, 4)]
-    assert cdr(OrderedDict({(1): 2})) == []
+    assert cdr(OrderedDict({1: 2})) == []
 
     assert car(cons(1, cons("a", "b"))) == 1
     assert cdr(cons(1, cons("a", "b"))) == cons("a", "b")
@@ -173,29 +173,34 @@ def test_unification():
     car_lv, cdr_lv = var(), var()
 
     res = unify([1, 2], cons(car_lv, cdr_lv), {})
-    assert res == {car_lv: 1, cdr_lv: [2]}
+    assert res[car_lv] == 1
+    assert res[cdr_lv] == [2]
 
     res = unify([], cons(car_lv, cdr_lv), {})
     assert res is False
 
     res = unify([1], cons(car_lv, cdr_lv), {})
-    assert res == {car_lv: 1, cdr_lv: []}
+    assert res[car_lv] == 1
+    assert res[cdr_lv] == []
 
     res = unify((1, 2), cons(car_lv, cdr_lv), {})
-    assert res == {car_lv: 1, cdr_lv: (2,)}
+    assert res[car_lv] == 1
+    assert res[cdr_lv] == (2,)
 
     res = unify((), cons(car_lv, cdr_lv), {})
     assert res is False
 
     res = unify((1,), cons(car_lv, cdr_lv), {})
-    assert res == {car_lv: 1, cdr_lv: ()}
+    assert res[car_lv] == 1
+    assert res[cdr_lv] == ()
 
     res = unify(iter([1]), cons(car_lv, cdr_lv), {})
     assert res[car_lv] == 1
     assert list(res[cdr_lv]) == []
 
-    res = unify(OrderedDict({"a": 1, "b": 2}), cons(car_lv, cdr_lv), {})
-    assert res == {car_lv: ("a", 1), cdr_lv: [("b", 2)]}
+    res = unify(OrderedDict([("a", 1), ("b", 2)]), cons(car_lv, cdr_lv), {})
+    assert res[car_lv] == ("a", 1)
+    assert res[cdr_lv] == [("b", 2)]
 
     res = unify(OrderedDict(), cons(car_lv, cdr_lv), {})
     assert res is False
@@ -215,7 +220,8 @@ def test_unification():
     assert res is False
 
     res = unify(OrderedDict({"a": 1}), cons(car_lv, cdr_lv), {})
-    assert res == {car_lv: ("a", 1), cdr_lv: []}
+    assert res[car_lv] == ("a", 1)
+    assert res[cdr_lv] == []
 
     res = reify(cons(1, cdr_lv), {cdr_lv: [2, 3]})
     assert res == [1, 2, 3]
