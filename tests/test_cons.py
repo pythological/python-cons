@@ -3,12 +3,12 @@ import pytest
 from functools import reduce
 from itertools import chain, cycle
 from collections import OrderedDict
-from collections.abc import Iterable
+from collections.abc import Iterator
 
 from unification import unify, reify, var
 
 from cons import cons, car, cdr
-from cons.core import ConsPair, is_cons, is_null
+from cons.core import ConsPair, MaybeCons, ConsNull, rest, ConsError
 
 
 def assert_all_equal(*tests):
@@ -19,7 +19,48 @@ def assert_all_equal(*tests):
     reduce(_equal, tests)
 
 
-def test_cons():
+def test_cons_type():
+    assert isinstance(cons(1, "hi"), ConsPair)
+    assert isinstance((1, 2), ConsPair)
+    assert isinstance([1, 2], ConsPair)
+    assert isinstance(OrderedDict({(1): 2}), ConsPair)
+    assert isinstance(iter([1]), ConsPair)
+    assert not isinstance(cons(1, "hi"), MaybeCons)
+    assert not isinstance({}, ConsPair)
+    assert not isinstance(set(), ConsPair)
+    assert not isinstance(set([1, 2]), ConsPair)
+    assert not isinstance("hi", ConsPair)
+    assert not isinstance("hi", ConsPair)
+    assert not isinstance(1, ConsPair)
+    assert not isinstance(iter([]), ConsPair)
+    assert not isinstance(rest(iter([1])), ConsPair)
+    assert not isinstance(OrderedDict({}), ConsPair)
+    assert not isinstance((), ConsPair)
+    assert not isinstance([], ConsPair)
+
+
+def test_cons_null():
+    assert isinstance(None, ConsNull)
+    assert isinstance([], ConsNull)
+    assert isinstance(tuple(), ConsNull)
+    assert isinstance(OrderedDict(), ConsNull)
+    assert isinstance(iter([]), ConsNull)
+    assert isinstance(rest(iter([1])), ConsNull)
+    assert not isinstance(object, ConsNull)
+    assert not isinstance([1], ConsNull)
+    assert not isinstance((1,), ConsNull)
+    assert not isinstance(OrderedDict([(1, 2)]), ConsNull)
+    assert not isinstance(iter([1]), ConsNull)
+    assert not isinstance(cycle([5]), ConsNull)
+
+
+def test_cons_join():
+
+    with pytest.raises(ValueError):
+        cons("a")
+
+    assert cons(1, 2, 3, 4) == cons(1, cons(2, cons(3, 4)))
+
     assert_all_equal(cons("a", None), cons("a", []), ["a"])
     assert cons("a", ()) == ("a",)
     assert cons("a", []) == ["a"]
@@ -44,37 +85,48 @@ def test_cons():
     assert type(cons(1, iter([3, 4]))) == chain
     assert list(cons([1, 2], iter([3, 4]))) == [[1, 2], 3, 4]
     assert list(cons(1, iter([2, 3]))) == [1, 2, 3]
-    assert cons("a", cons("b", "c")) == cons(["a", "b"], "c")
-    assert cons(cons("a", "b"), cons("c", "d")) == cons(
-        [cons("a", "b"), "c"], "d"
-    )
+
+    assert cons("a", cons("b", cons("c", None))) == ["a", "b", "c"]
+    assert cons("a", cons("b", "c")).car == "a"
+    assert cons("a", cons("b", "c")).cdr == cons("b", "c")
+
+
+def test_cons_tr():
+    assert repr(cons(1, 2)) == "ConsPair(1 2)"
+    assert str(cons(1, 2, 3)) == "(1 . (2 . 3))"
 
 
 def test_car_cdr():
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ConsError):
         car(None)
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ConsError):
         car(tuple())
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ConsError):
         car([])
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ConsError):
         car(iter([]))
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ConsError):
         cdr(None)
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ConsError):
         cdr(tuple())
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ConsError):
         cdr([])
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ConsError):
         cdr(iter([]))
+
+    with pytest.raises(ConsError):
+        car(OrderedDict())
+
+    with pytest.raises(ConsError):
+        cdr(OrderedDict())
 
     assert car(cons("a", "b")) == "a"
     z = car(cons(iter([]), 1))
@@ -82,9 +134,19 @@ def test_car_cdr():
     assert type(z) == type(expected)
     assert list(z) == list(expected)
 
+    li = iter([1])
+    assert car(li) == 1
+
+    with pytest.raises(ConsError):
+        assert car(li) == 1
+
+    li = iter([1])
+    assert isinstance(cdr(li), Iterator)
+    assert isinstance(cdr(li), Iterator)
+
     z = cdr(cons(1, iter([])))
     expected = iter([])
-    assert isinstance(z, Iterable)
+    assert isinstance(z, Iterator)
     assert list(z) == list(expected)
 
     assert car(iter([1])) == 1
@@ -103,37 +165,8 @@ def test_car_cdr():
     assert cdr(OrderedDict([(1, 2), (3, 4)])) == [(3, 4)]
     assert cdr(OrderedDict({(1): 2})) == []
 
-
-def test_is_cons():
-    assert is_cons(cons(1, "hi"))
-    assert is_cons((1, 2))
-    assert is_cons([1, 2])
-    assert is_cons(OrderedDict({(1): 2}))
-    assert is_cons(iter([1]))
-    assert not is_cons({})
-    assert not is_cons(set())
-    assert not is_cons(set([1, 2]))
-    assert not is_cons("hi")
-    assert not is_cons("hi")
-    assert not is_cons(1)
-    assert not is_cons(iter([]))
-    assert not is_cons(OrderedDict({}))
-    assert not is_cons(())
-    assert not is_cons([])
-
-
-def test_is_null():
-    assert is_null(None)
-    assert is_null([])
-    assert is_null(tuple())
-    assert is_null(OrderedDict())
-    assert is_null(iter([]))
-    assert not is_null(object)
-    assert not is_null([1])
-    assert not is_null((1,))
-    assert not is_null(OrderedDict([(1, 2)]))
-    assert not is_null(iter([1]))
-    assert not is_null(cycle([5]))
+    assert car(cons(1, cons("a", "b"))) == 1
+    assert cdr(cons(1, cons("a", "b"))) == cons("a", "b")
 
 
 def test_unification():
@@ -157,10 +190,28 @@ def test_unification():
     res = unify((1,), cons(car_lv, cdr_lv), {})
     assert res == {car_lv: 1, cdr_lv: ()}
 
+    res = unify(iter([1]), cons(car_lv, cdr_lv), {})
+    assert res[car_lv] == 1
+    assert list(res[cdr_lv]) == []
+
     res = unify(OrderedDict({"a": 1, "b": 2}), cons(car_lv, cdr_lv), {})
     assert res == {car_lv: ("a", 1), cdr_lv: [("b", 2)]}
 
     res = unify(OrderedDict(), cons(car_lv, cdr_lv), {})
+    assert res is False
+
+    # This is only if we allow `None` to signify all/any empty collection,
+    # while--somewhat controversially--we let it default to `[]`.
+    res = unify((1,), cons(1, None), {})
+    assert res == {}
+
+    res = unify(cons(1, 2), cons(car_lv, 2), {})
+    assert res == {car_lv: 1}
+
+    res = unify(cons(1, 2), cons(1, cdr_lv), {})
+    assert res == {cdr_lv: 2}
+
+    res = unify((2,), cons(3, ()), {})
     assert res is False
 
     res = unify(OrderedDict({"a": 1}), cons(car_lv, cdr_lv), {})
@@ -174,6 +225,9 @@ def test_unification():
 
     res = reify(cons(1, cdr_lv), {cdr_lv: None})
     assert res == [1]
+
+    res = reify(cons(1, cons(2, cons(3, cdr_lv))), {cdr_lv: None})
+    assert res == [1, 2, 3]
 
     res = reify(cons(1, cdr_lv), {cdr_lv: tuple()})
     assert res == (1,)

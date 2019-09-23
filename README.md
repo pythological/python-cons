@@ -35,12 +35,12 @@ The `cons` package follows Scheme-like semantics for empty sequences:
 >>> car([])
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-TypeError: Not a cons pair
+ConsError: Not a cons pair
 
 >>> cdr([])
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-TypeError: Not a cons pair
+ConsError: Not a cons pair
 
 ```
 

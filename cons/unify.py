@@ -1,33 +1,35 @@
-from collections import OrderedDict
-from collections.abc import Iterator
+from itertools import tee
+from collections import OrderedDict, Iterator
 
 from unification.core import unify, _unify, reify, _reify
 
-from .core import is_cons, car, cdr, ConsPair, cons
+from .core import car, cdr, ConsPair, cons, MaybeCons, ConsError
 
 
-# Unfortunately, `multipledispatch` doesn't use `isinstance` on the arguments,
-# so it won't use our fancy setup for `isinstance(x, ConsPair)` and we have to
-# specify--and check--each `cons`-amenable type explicitly.
 def _cons_unify(lcons, rcons, s):
 
-    if not is_cons(lcons) or not is_cons(rcons):
-        # One of the arguments is necessarily a `ConsPair` object,
-        # but the other could be an empty iterable, which isn't a
-        # `cons`-derivable object.
-        return False
+    lcons_ = lcons
+    rcons_ = rcons
 
-    s = unify(car(lcons), car(rcons), s)
-    if s is not False:
-        return unify(cdr(lcons), cdr(rcons), s)
+    if isinstance(lcons, Iterator):
+        lcons, lcons_ = tee(lcons)
+
+    if isinstance(rcons, Iterator):
+        rcons, rcons_ = tee(rcons)
+
+    try:
+        s = unify(car(lcons), car(rcons), s)
+
+        if s is not False:
+            return unify(cdr(lcons_), cdr(rcons_), s)
+    except ConsError:
+        pass
+
     return False
 
 
-_unify.add(
-    (ConsPair, (ConsPair, list, tuple, Iterator, OrderedDict), dict),
-    _cons_unify,
-)
-_unify.add(((list, tuple, Iterator, OrderedDict), ConsPair, dict), _cons_unify)
+_unify.add((ConsPair, (ConsPair, MaybeCons), dict), _cons_unify)
+_unify.add((MaybeCons, ConsPair, dict), _cons_unify)
 
 
 @_reify.register(OrderedDict, dict)
