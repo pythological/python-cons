@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="cons",
-    version="0.0.1",
+    version="0.1.0",
     install_requires=[
         'toolz',
         'multipledispatch',
@@ -21,7 +21,8 @@ setup(
     platforms=['any'],
     python_requires='>=3.6',
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Science/Research",
         "Intended Audience :: Developers",
         "License :: DFSG approved",
         "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
