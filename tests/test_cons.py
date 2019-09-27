@@ -8,7 +8,7 @@ from collections.abc import Iterator
 from unification import unify, reify, var
 
 from cons import cons, car, cdr
-from cons.core import ConsPair, MaybeCons, ConsNull, rest, ConsError
+from cons.core import ConsPair, MaybeCons, ConsNull, rest, ConsError, NonCons
 
 
 def assert_all_equal(*tests):
@@ -19,12 +19,33 @@ def assert_all_equal(*tests):
     reduce(_equal, tests)
 
 
+def test_noncons_type():
+
+    with pytest.raises(TypeError):
+        NonCons()
+
+    class MyStr(object):
+        pass
+
+    NonCons.register(MyStr)
+
+    assert issubclass(MyStr, NonCons)
+    assert not isinstance(MyStr, NonCons)
+    assert not issubclass(MyStr, MaybeCons)
+    assert not issubclass(ConsPair, NonCons)
+
+
 def test_cons_type():
+    with pytest.raises(TypeError):
+        MaybeCons()
+
     assert isinstance(cons(1, "hi"), ConsPair)
     assert isinstance((1, 2), ConsPair)
     assert isinstance([1, 2], ConsPair)
-    assert isinstance(OrderedDict({(1): 2}), ConsPair)
+    assert isinstance(OrderedDict({1: 2}), ConsPair)
     assert isinstance(iter([1]), ConsPair)
+
+    assert not isinstance({1: 2}, MaybeCons)
     assert not isinstance(cons(1, "hi"), MaybeCons)
     assert not isinstance({}, ConsPair)
     assert not isinstance(set(), ConsPair)
@@ -40,6 +61,10 @@ def test_cons_type():
 
 
 def test_cons_null():
+
+    with pytest.raises(TypeError):
+        ConsNull()
+
     assert isinstance(None, ConsNull)
     assert isinstance([], ConsNull)
     assert isinstance(tuple(), ConsNull)
@@ -91,8 +116,8 @@ def test_cons_join():
     assert cons("a", cons("b", "c")).cdr == cons("b", "c")
 
 
-def test_cons_tr():
-    assert repr(cons(1, 2)) == "ConsPair(1 2)"
+def test_cons_str():
+    assert repr(cons(1, 2)) == "ConsPair(1, 2)"
     assert str(cons(1, 2, 3)) == "(1 . (2 . 3))"
 
 
@@ -128,7 +153,11 @@ def test_car_cdr():
     with pytest.raises(ConsError):
         cdr(OrderedDict())
 
+    assert car([1, 2]) == 1
+    assert cdr([1, 2]) == [2]
+
     assert car(cons("a", "b")) == "a"
+
     z = car(cons(iter([]), 1))
     expected = iter([])
     assert type(z) == type(expected)

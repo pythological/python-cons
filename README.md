@@ -19,12 +19,11 @@ The `cons` package attempts to emulate the semantics of Lisp/Scheme's `cons` as 
 
 >>> cons(1, [2, 3])
 [1, 2, 3]
-
->>> cons(1, "a string")
-ConsPair(1 'a string')
 ```
 
-According to `cons`, `None` corresponds to the empty built-in `list`:
+In general, `cons` is designed to work with `collections.abc.Sequence` types.
+
+According to the `cons` package, `None` corresponds to the empty built-in `list`, as `nil` does in some Lisps:
 ```python
 >>> cons(1, None)
 [1]
@@ -44,17 +43,26 @@ ConsError: Not a cons pair
 
 ```
 
+By default, `str` types are not considered cons-pairs, although they are sequences:
+```python
+>>> cons("a", "string")
+ConsPair('a' 'a string')
+```
+
+This setting can be overridden and other types can be similarly excluded from consideration by registering classes with the `abc`-based classes `MaybeCons` and `NonCons`.
+
+
 Features
 ===========
 
-* Support for the standard Python ordered collection types: i.e. `list`, `tuple`, `Iterator`, `OrderedDict`.
+* Built-in support for the standard Python ordered sequence types: i.e. `list`, `tuple`, `Iterator`, `OrderedDict`.
 ```python
 >>> from collections import OrderedDict
 >>> cons(('a', 1), OrderedDict())
 OrderedDict([('a', 1)])
 
 ```
-* Existing `cons` behavior is easy to change and new collections are straightforward to add through [`multipledispatch`][md].
+* Existing `cons` behavior can be changed and support for new collections can be added through the generic functions `cons.core._car` and `cons.core._cdr`.
 * Built-in support for [`unification`][un].
 ```python
 >>> from unification import unify, reify, var
@@ -78,5 +86,4 @@ pip install cons
 
 
 [cons]: https://en.wikipedia.org/wiki/Cons
-[md]: https://github.com/mrocklin/multipledispatch
 [un]: https://github.com/mrocklin/unification

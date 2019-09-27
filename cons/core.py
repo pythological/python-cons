@@ -1,8 +1,9 @@
+from abc import ABCMeta, ABC, abstractmethod
 from functools import reduce
 from operator import length_hint
-from collections import OrderedDict
+from collections import OrderedDict, UserString
 from itertools import chain, islice
-from collections.abc import Iterator, Sequence, ItemsView
+from collections.abc import Iterator, Sequence, ItemsView, ByteString
 
 from multipledispatch import dispatch
 
@@ -23,7 +24,7 @@ class ConsError(ValueError):
     pass
 
 
-class ConsType(type):
+class ConsType(ABCMeta):
     def __instancecheck__(self, o):
         return (
             issubclass(type(o), (ConsPair, MaybeCons))
@@ -31,7 +32,7 @@ class ConsType(type):
         )
 
 
-class ConsNullType(type):
+class ConsNullType(ABCMeta):
     def __instancecheck__(self, o):
         if o is None:
             return True
@@ -63,7 +64,9 @@ class ConsNull(metaclass=ConsNullType):
     is returned, and it signifies the uncertainty of the negative assertion.
     """
 
-    pass
+    @abstractmethod
+    def __init__(self):
+        pass
 
 
 class ConsPair(metaclass=ConsType):
@@ -137,7 +140,7 @@ class ConsPair(metaclass=ConsType):
         )
 
     def __repr__(self):
-        return "{}({} {})".format(
+        return "{}({}, {})".format(
             self.__class__.__name__, repr(self.car), repr(self.cdr)
         )
 
@@ -148,15 +151,15 @@ class ConsPair(metaclass=ConsType):
 cons = ConsPair
 
 
-class MaybeConsType(type):
-    _ignored_types = (object, type(None), ConsPair, str)
-
+class MaybeConsType(ABCMeta):
     def __subclasscheck__(self, o):
-        return o not in self._ignored_types and any(
-            issubclass(o, d)
-            for d in cdr.funcs.keys()
-            if d not in self._ignored_types
-        )
+
+        if issubclass(o, tuple(_cdr.funcs.keys())) and not issubclass(
+            o, NonCons
+        ):
+            return True
+
+        return False
 
 
 class MaybeCons(metaclass=MaybeConsType):
@@ -172,21 +175,47 @@ class MaybeCons(metaclass=MaybeConsType):
     functions.
     """
 
-    pass
+    @abstractmethod
+    def __init__(self):
+        pass
 
 
-@dispatch((type(None), str))
+class NonCons(ABC):
+    """A class (and its subclasses) that is *not* considered a cons.
+
+    This type/class can be used as a means of excluding certain types from
+    consideration as a cons pair (i.e. via `NotCons.register`).
+    """
+
+    @abstractmethod
+    def __init__(self):
+        pass
+
+
+for t in (type(None), str, set, UserString, ByteString):
+    NonCons.register(t)
+
+
 def car(z):
-    raise ConsError("Not a cons pair")
+    if issubclass(type(z), ConsPair):
+        return z.car
+
+    try:
+        return _car(z)
+    except NotImplementedError:
+        raise ConsError("Not a cons pair")
 
 
-@car.register(ConsPair)
-def car_ConsPair(z):
-    return z.car
+@dispatch(Sequence)
+def _car(z):
+    try:
+        return first(z)
+    except StopIteration:
+        raise ConsError("Not a cons pair")
 
 
-@car.register(Iterator)
-def car_Iterator(z):
+@_car.register(Iterator)
+def _car_Iterator(z):
     """Return the first element in the given iterator.
 
     Warning: `car` necessarily draws from the iterator, and we can't do
@@ -201,48 +230,40 @@ def car_Iterator(z):
         raise ConsError("Not a cons pair")
 
 
-@car.register(Sequence)
-def car_Sequence(z):
-    try:
-        return first(z)
-    except StopIteration:
-        raise ConsError("Not a cons pair")
-
-
-@car.register(OrderedDict)
-def car_OrderedDict(z):
+@_car.register(OrderedDict)
+def _car_OrderedDict(z):
     if len(z) == 0:
         raise ConsError("Not a cons pair")
 
     return first(z.items())
 
 
-@dispatch((type(None), str))
 def cdr(z):
-    raise ConsError("Not a cons pair")
+    if issubclass(type(z), ConsPair):
+        return z.cdr
 
-
-@cdr.register(ConsPair)
-def cdr_ConsPair(z):
-    return z.cdr
-
-
-@cdr.register(Iterator)
-def cdr_Iterator(z):
-    if length_hint(z, 1) == 0:
+    try:
+        return _cdr(z)
+    except NotImplementedError:
         raise ConsError("Not a cons pair")
-    return rest(z)
 
 
-@cdr.register(Sequence)
-def cdr_Sequence(z):
+@dispatch(Sequence)
+def _cdr(z):
     if len(z) == 0:
         raise ConsError("Not a cons pair")
     return type(z)(rest(z))
 
 
-@cdr.register(OrderedDict)
-def cdr_OrderedDict(z):
+@_cdr.register(Iterator)
+def _cdr_Iterator(z):
+    if length_hint(z, 1) == 0:
+        raise ConsError("Not a cons pair")
+    return rest(z)
+
+
+@_cdr.register(OrderedDict)
+def _cdr_OrderedDict(z):
     if len(z) == 0:
         raise ConsError("Not a cons pair")
     return cdr(list(z.items()))

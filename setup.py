@@ -4,10 +4,9 @@ from setuptools import find_packages, setup
 
 setup(
     name="cons",
-    version="0.1.2",
+    version="0.1.3",
     install_requires=[
         'toolz',
-        'multipledispatch',
         'unification'
     ],
     packages=find_packages(exclude=['tests']),
