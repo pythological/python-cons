@@ -14,7 +14,7 @@ setup(
     long_description=open("README.md").read() if exists("README.md") else "",
     long_description_content_type="text/markdown",
     license="LGPL-3",
-    url="https://github.com/brandonwillard/python-cons",
+    url="https://github.com/pythological/python-cons",
     platforms=["any"],
     python_requires=">=3.6",
     classifiers=[

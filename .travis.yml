@@ -19,5 +19,4 @@ script:
   - pytest -v tests/ --cov=cons/
 
 after_success:
-  - pip install coveralls
   - coveralls
