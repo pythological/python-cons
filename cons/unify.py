@@ -1,5 +1,6 @@
 from itertools import tee
-from collections import OrderedDict, Iterator
+from collections import OrderedDict
+from collections.abc import Iterator, Mapping
 
 from unification.core import unify, _unify, reify, _reify
 
@@ -28,16 +29,16 @@ def _cons_unify(lcons, rcons, s):
     return False
 
 
-_unify.add((ConsPair, (ConsPair, MaybeCons), dict), _cons_unify)
-_unify.add((MaybeCons, ConsPair, dict), _cons_unify)
+_unify.add((ConsPair, (ConsPair, MaybeCons), Mapping), _cons_unify)
+_unify.add((MaybeCons, ConsPair, Mapping), _cons_unify)
 
 
-@_reify.register(OrderedDict, dict)
+@_reify.register(OrderedDict, Mapping)
 def reify_OrderedDict(od, s):
     return OrderedDict((k, reify(v, s)) for k, v in od.items())
 
 
-@_reify.register(ConsPair, dict)
+@_reify.register(ConsPair, Mapping)
 def reify_cons(lcons, s):
     rcar = reify(car(lcons), s)
     rcdr = reify(cdr(lcons), s)

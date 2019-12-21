@@ -163,8 +163,7 @@ class MaybeConsType(ABCMeta):
 
 
 class MaybeCons(metaclass=MaybeConsType):
-    """A class used to dynamically determine potential cons types from
-    non-ConsPairs.
+    """A class used to dynamically determine potential cons types from non-ConsPairs.
 
     For example,
 
@@ -173,6 +172,7 @@ class MaybeCons(metaclass=MaybeConsType):
 
     The potential cons types are drawn from the implemented `cdr` dispatch
     functions.
+
     """
 
     @abstractmethod
