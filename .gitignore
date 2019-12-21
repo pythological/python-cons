@@ -103,6 +103,7 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+testing-report.html
 
 # Translations
 *.mo

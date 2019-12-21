@@ -236,8 +236,11 @@ def test_unification():
 
     # This is only if we allow `None` to signify all/any empty collection,
     # while--somewhat controversially--we let it default to `[]`.
-    res = unify((1,), cons(1, None), {})
+    res = unify([1], cons(1, None), {})
     assert res == {}
+
+    res = unify((1,), cons(1, None), {})
+    assert res is False
 
     res = unify(cons(1, 2), cons(car_lv, 2), {})
     assert res == {car_lv: 1}
