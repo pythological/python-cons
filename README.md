@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/brandonwillard/python-cons.svg?branch=master)](https://travis-ci.org/brandonwillard/python-cons) [![Coverage Status](https://coveralls.io/repos/github/brandonwillard/python-cons/badge.svg?branch=master)](https://coveralls.io/github/brandonwillard/python-cons?branch=master) [![PyPI](https://img.shields.io/pypi/v/cons)](https://pypi.org/project/cons/)
+[![Build Status](https://travis-ci.org/pythological/python-cons.svg?branch=master)](https://travis-ci.org/pythological/python-cons) [![Coverage Status](https://coveralls.io/repos/github/pythological/python-cons/badge.svg?branch=master)](https://coveralls.io/github/pythological/python-cons?branch=master) [![PyPI](https://img.shields.io/pypi/v/cons)](https://pypi.org/project/cons/)
 
 Python `cons`
 ==================

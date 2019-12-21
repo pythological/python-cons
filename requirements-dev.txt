@@ -1,3 +1,4 @@
+coveralls
 pydocstyle>=3.0.0
 pytest>=5.0.0
 pytest-cov>=2.6.1
