@@ -5,10 +5,7 @@ from setuptools import find_packages, setup
 setup(
     name="cons",
     version="0.2.0",
-    install_requires=[
-        "toolz",
-        "unification @ git+https://github.com/brandonwillard/unification.git@master#egg=unification-0.2.2",
-    ],
+    install_requires=["toolz", "logical-unification"],
     packages=find_packages(exclude=["tests"]),
     tests_require=["pytest"],
     author="Brandon T. Willard",
