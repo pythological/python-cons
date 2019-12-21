@@ -4,24 +4,22 @@ from setuptools import find_packages, setup
 
 setup(
     name="cons",
-    version="0.1.3",
+    version="0.2.0",
     install_requires=[
-        'toolz',
-        'unification'
+        "toolz",
+        "unification @ git+https://github.com/brandonwillard/unification.git@master#egg=unification-0.2.2",
     ],
-    packages=find_packages(exclude=['tests']),
-    tests_require=[
-        'pytest'
-    ],
+    packages=find_packages(exclude=["tests"]),
+    tests_require=["pytest"],
     author="Brandon T. Willard",
     author_email="brandonwillard+cons@gmail.com",
     description="""An implementation of Lisp/Scheme-like cons in Python.""",
-    long_description=open('README.md').read() if exists("README.md") else "",
-    long_description_content_type='text/markdown',
+    long_description=open("README.md").read() if exists("README.md") else "",
+    long_description_content_type="text/markdown",
     license="LGPL-3",
     url="https://github.com/brandonwillard/python-cons",
-    platforms=['any'],
-    python_requires='>=3.5',
+    platforms=["any"],
+    python_requires=">=3.6",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
@@ -31,11 +29,10 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         "Topic :: Software Development :: Libraries",
-    ]
+    ],
 )
