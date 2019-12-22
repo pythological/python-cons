@@ -1,10 +1,14 @@
 #!/usr/bin/env python
+import versioneer
+
 from os.path import exists
 from setuptools import find_packages, setup
 
+
 setup(
     name="cons",
-    version="0.2.0",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     install_requires=["toolz", "logical-unification"],
     packages=find_packages(exclude=["tests"]),
     tests_require=["pytest"],
