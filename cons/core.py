@@ -66,7 +66,7 @@ class ConsNull(metaclass=ConsNullType):
 
     @abstractmethod
     def __init__(self):
-        pass
+        raise NotImplementedError()
 
 
 class ConsPair(metaclass=ConsType):
@@ -177,7 +177,7 @@ class MaybeCons(metaclass=MaybeConsType):
 
     @abstractmethod
     def __init__(self):
-        pass
+        raise NotImplementedError()
 
 
 class NonCons(ABC):
@@ -189,7 +189,7 @@ class NonCons(ABC):
 
     @abstractmethod
     def __init__(self):
-        pass
+        raise NotImplementedError()
 
 
 for t in (type(None), str, set, UserString, ByteString):
@@ -238,6 +238,11 @@ def _car_OrderedDict(z):
     return first(z.items())
 
 
+@_car.register(NonCons)
+def _car_NonCons(z):
+    raise ConsError(f"{z} is a NonCons type")
+
+
 def cdr(z):
     if issubclass(type(z), ConsPair):
         return z.cdr
@@ -267,3 +272,8 @@ def _cdr_OrderedDict(z):
     if len(z) == 0:
         raise ConsError("Not a cons pair")
     return cdr(list(z.items()))
+
+
+@_cdr.register(NonCons)
+def _cdr_NonCons(z):
+    raise ConsError(f"{z} is a NonCons type")
