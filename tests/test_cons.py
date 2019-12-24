@@ -124,6 +124,9 @@ def test_cons_str():
 def test_car_cdr():
 
     with pytest.raises(ConsError):
+        car(object())
+
+    with pytest.raises(ConsError):
         car(None)
 
     with pytest.raises(ConsError):
@@ -134,6 +137,12 @@ def test_car_cdr():
 
     with pytest.raises(ConsError):
         car(iter([]))
+
+    with pytest.raises(ConsError):
+        car("ab")
+
+    with pytest.raises(ConsError):
+        cdr(object())
 
     with pytest.raises(ConsError):
         cdr(None)
@@ -152,6 +161,9 @@ def test_car_cdr():
 
     with pytest.raises(ConsError):
         cdr(OrderedDict())
+
+    with pytest.raises(ConsError):
+        cdr("ab")
 
     assert car([1, 2]) == 1
     assert cdr([1, 2]) == [2]
