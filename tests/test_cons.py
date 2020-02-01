@@ -8,7 +8,7 @@ from collections.abc import Iterator
 from unification import unify, reify, var
 
 from cons import cons, car, cdr
-from cons.core import ConsPair, MaybeCons, ConsNull, rest, ConsError, NonCons
+from cons.core import ConsPair, MaybeCons, ConsNull, ConsError, NonCons
 
 
 def assert_all_equal(*tests):
@@ -54,7 +54,6 @@ def test_cons_type():
     assert not isinstance("hi", ConsPair)
     assert not isinstance(1, ConsPair)
     assert not isinstance(iter([]), ConsPair)
-    assert not isinstance(rest(iter([1])), ConsPair)
     assert not isinstance(OrderedDict({}), ConsPair)
     assert not isinstance((), ConsPair)
     assert not isinstance([], ConsPair)
@@ -70,7 +69,6 @@ def test_cons_null():
     assert isinstance(tuple(), ConsNull)
     assert isinstance(OrderedDict(), ConsNull)
     assert isinstance(iter([]), ConsNull)
-    assert isinstance(rest(iter([1])), ConsNull)
     assert not isinstance(object, ConsNull)
     assert not isinstance([1], ConsNull)
     assert not isinstance((1,), ConsNull)
@@ -212,11 +210,14 @@ def test_car_cdr():
     # We need to make sure that `__getitem__` is actually used.
     from collections import UserList
 
+    # Also, make sure `cdr` returns the `__getitem__` result unaltered
+    clist_res = [5]
+
     class CustomList(UserList):
         def __getitem__(self, *args):
-            return [5]
+            return clist_res
 
-    assert cdr(CustomList([1, 2, 3])) == [5]
+    assert cdr(CustomList([1, 2, 3])) is clist_res
 
 
 def test_unification():
