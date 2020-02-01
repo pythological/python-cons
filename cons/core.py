@@ -14,10 +14,12 @@ from toolz import last, first
 
 
 def rest(seq):
-    if isinstance(seq, Iterator) and length_hint(seq, 2) <= 1:
+    if isinstance(seq, Sequence):
+        return seq[1:]
+    elif isinstance(seq, Iterator) and length_hint(seq, 2) <= 1:
         return iter([])
-    else:
-        return islice(seq, 1, None)
+
+    return islice(seq, 1, None)
 
 
 class ConsError(ValueError):

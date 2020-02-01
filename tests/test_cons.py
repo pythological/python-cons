@@ -209,6 +209,15 @@ def test_car_cdr():
     assert car(cons(1, cons("a", "b"))) == 1
     assert cdr(cons(1, cons("a", "b"))) == cons("a", "b")
 
+    # We need to make sure that `__getitem__` is actually used.
+    from collections import UserList
+
+    class CustomList(UserList):
+        def __getitem__(self, *args):
+            return [5]
+
+    assert cdr(CustomList([1, 2, 3])) == [5]
+
 
 def test_unification():
     car_lv, cdr_lv = var(), var()
