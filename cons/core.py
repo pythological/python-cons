@@ -13,15 +13,6 @@ from toolz import last, first
 # from toolz.itertoolz import rest
 
 
-def rest(seq):
-    if isinstance(seq, Sequence):
-        return seq[1:]
-    elif isinstance(seq, Iterator) and length_hint(seq, 2) <= 1:
-        return iter([])
-
-    return islice(seq, 1, None)
-
-
 class ConsError(ValueError):
     pass
 
@@ -259,14 +250,18 @@ def cdr(z):
 def _cdr(z):
     if len(z) == 0:
         raise ConsError("Not a cons pair")
-    return type(z)(rest(z))
+    return z[1:]
 
 
 @_cdr.register(Iterator)
 def _cdr_Iterator(z):
     if length_hint(z, 1) == 0:
         raise ConsError("Not a cons pair")
-    return rest(z)
+
+    if isinstance(z, Iterator) and length_hint(z, 2) <= 1:
+        return iter([])
+
+    return islice(z, 1, None)
 
 
 @_cdr.register(OrderedDict)
