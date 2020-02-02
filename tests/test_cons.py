@@ -2,7 +2,7 @@ import pytest
 
 from functools import reduce
 from itertools import chain, cycle
-from collections import OrderedDict
+from collections import OrderedDict, UserList
 from collections.abc import Iterator
 
 from unification import unify, reify, var
@@ -113,6 +113,16 @@ def test_cons_join():
     assert cons("a", cons("b", "c")).car == "a"
     assert cons("a", cons("b", "c")).cdr == cons("b", "c")
 
+    # Make sure that an overridden "append" (via `__add__`) is used and
+    # that the results are returned unadulterated
+    clist_res = [1, 2, 3]
+
+    class CustomList(UserList):
+        def __add__(self, a):
+            return clist_res
+
+    assert cons(1, CustomList([2, 3])) is clist_res
+
 
 def test_cons_str():
     assert repr(cons(1, 2)) == "ConsPair(1, 2)"
@@ -208,8 +218,6 @@ def test_car_cdr():
     assert cdr(cons(1, cons("a", "b"))) == cons("a", "b")
 
     # We need to make sure that `__getitem__` is actually used.
-    from collections import UserList
-
     # Also, make sure `cdr` returns the `__getitem__` result unaltered
     clist_res = [5]
 

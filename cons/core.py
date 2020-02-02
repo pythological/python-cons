@@ -1,16 +1,14 @@
 from abc import ABCMeta, ABC, abstractmethod
 from functools import reduce
 from operator import length_hint
-from collections import OrderedDict, UserString
 from itertools import chain, islice
-from collections.abc import Iterator, Sequence, ItemsView, ByteString
+from collections import OrderedDict, UserString
+from collections.abc import Iterator, Sequence, ItemsView, ByteString, Mapping
 
 from multipledispatch import dispatch
 
-from toolz import last, first
-
-# We can't use this because `islice` drops __length_hint__ info.
-# from toolz.itertoolz import rest
+# This is the constructor/type used for `ConsNull` value `None`.
+default_ConsNull = list
 
 
 class ConsError(ValueError):
@@ -86,11 +84,7 @@ class ConsPair(metaclass=ConsType):
         if len(parts) > 2:
             res = reduce(lambda x, y: ConsPair(y, x), reversed(parts))
         elif len(parts) == 2:
-            car_part = first(parts)
-            cdr_part = last(parts)
-
-            if cdr_part is None:
-                cdr_part = []
+            car_part, cdr_part = parts
 
             if isinstance(
                 cdr_part, (ConsNull, ConsPair, Iterator)
@@ -110,17 +104,22 @@ class ConsPair(metaclass=ConsType):
     @classmethod
     def cons_merge(cls, car_part, cdr_part):
 
-        if isinstance(cdr_part, OrderedDict):
+        if cdr_part is None:
+            cdr_part = default_ConsNull()
+
+        if isinstance(cdr_part, Mapping):
             cdr_part = cdr_part.items()
 
-        res = chain((car_part,), cdr_part)
-
         if isinstance(cdr_part, ItemsView):
-            res = OrderedDict(res)
-        elif not isinstance(cdr_part, Iterator):
-            res = type(cdr_part)(res)
 
-        return res
+            return OrderedDict(chain((car_part,), cdr_part))
+
+        elif hasattr(cdr_part, "__add__") or hasattr(cdr_part, "__radd__"):
+            # TODO: What about adding `list.extend`?  We're already
+            # constructing an instance of the CDR type.
+            return type(cdr_part)((car_part,)) + cdr_part
+
+        return chain((car_part,), cdr_part)
 
     def __hash__(self):
         return hash([self.car, self.cdr])
@@ -202,7 +201,7 @@ def car(z):
 @dispatch(Sequence)
 def _car(z):
     try:
-        return first(z)
+        return next(iter(z))
     except StopIteration:
         raise ConsError("Not a cons pair")
 
@@ -218,7 +217,7 @@ def _car_Iterator(z):
     """
     try:
         # z, _ = tee(z)
-        return first(z)
+        return next(iter(z))
     except StopIteration:
         raise ConsError("Not a cons pair")
 
@@ -228,7 +227,7 @@ def _car_OrderedDict(z):
     if len(z) == 0:
         raise ConsError("Not a cons pair")
 
-    return first(z.items())
+    return next(iter(z.items()))
 
 
 @_car.register(NonCons)

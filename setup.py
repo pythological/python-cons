@@ -9,7 +9,7 @@ setup(
     name="cons",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    install_requires=["toolz", "logical-unification"],
+    install_requires=["logical-unification"],
     packages=find_packages(exclude=["tests"]),
     tests_require=["pytest"],
     author="Brandon T. Willard",
