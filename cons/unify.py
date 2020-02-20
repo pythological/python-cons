@@ -1,13 +1,16 @@
 from itertools import tee
-from collections import OrderedDict
 from collections.abc import Iterator, Mapping
 
-from unification.core import unify, _unify, reify, _reify
+from unification.core import (
+    _unify,
+    _reify,
+    construction_sentinel,
+)
 
 from .core import car, cdr, ConsPair, cons, MaybeCons, ConsError
 
 
-def _cons_unify(lcons, rcons, s):
+def _unify_Cons(lcons, rcons, s):
 
     lcons_ = lcons
     rcons_ = rcons
@@ -19,27 +22,23 @@ def _cons_unify(lcons, rcons, s):
         rcons, rcons_ = tee(rcons)
 
     try:
-        s = unify(car(lcons), car(rcons), s)
+        s = yield _unify(car(lcons), car(rcons), s)
 
         if s is not False:
-            return unify(cdr(lcons_), cdr(rcons_), s)
+            s = yield _unify(cdr(lcons_), cdr(rcons_), s)
     except ConsError:
-        pass
-
-    return False
-
-
-_unify.add((ConsPair, (ConsPair, MaybeCons), Mapping), _cons_unify)
-_unify.add((MaybeCons, ConsPair, Mapping), _cons_unify)
+        yield False
+    else:
+        yield s
 
 
-@_reify.register(OrderedDict, Mapping)
-def reify_OrderedDict(od, s):
-    return OrderedDict((k, reify(v, s)) for k, v in od.items())
+_unify.add((ConsPair, (ConsPair, MaybeCons), Mapping), _unify_Cons)
+_unify.add((MaybeCons, ConsPair, Mapping), _unify_Cons)
 
 
 @_reify.register(ConsPair, Mapping)
-def reify_cons(lcons, s):
-    rcar = reify(car(lcons), s)
-    rcdr = reify(cdr(lcons), s)
-    return cons(rcar, rcdr)
+def _reify_Cons(lcons, s):
+    rcar = yield _reify(car(lcons), s)
+    rcdr = yield _reify(cdr(lcons), s)
+    yield construction_sentinel
+    yield cons(rcar, rcdr)
