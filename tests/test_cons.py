@@ -1,6 +1,5 @@
 import pytest
 
-from functools import reduce
 from itertools import chain, cycle
 from collections import OrderedDict, UserList
 from collections.abc import Iterator
@@ -9,14 +8,6 @@ from unification import unify, reify, var
 
 from cons import cons, car, cdr
 from cons.core import ConsPair, MaybeCons, ConsNull, ConsError, NonCons
-
-
-def assert_all_equal(*tests):
-    def _equal(x, y):
-        assert x, y
-        return y
-
-    reduce(_equal, tests)
 
 
 def test_noncons_type():
@@ -83,8 +74,7 @@ def test_cons_join():
         cons("a")
 
     assert cons(1, 2, 3, 4) == cons(1, cons(2, cons(3, 4)))
-
-    assert_all_equal(cons("a", None), cons("a", []), ["a"])
+    assert cons("a", None) == cons("a", []) == ["a"]
     assert cons("a", ()) == ("a",)
     assert cons("a", []) == ["a"]
     assert cons(None, "a").car is None
@@ -124,7 +114,9 @@ def test_cons_join():
     assert cons(1, CustomList([2, 3])) is clist_res
 
 
-def test_cons_str():
+def test_cons_class():
+    c = cons(1, 2)
+    assert {c: 1}[c] == 1
     assert repr(cons(1, 2)) == "ConsPair(1, 2)"
     assert str(cons(1, 2, 3)) == "(1 . (2 . 3))"
 
@@ -254,6 +246,10 @@ def test_unification():
     assert res[cdr_lv] == ()
 
     res = unify(iter([1]), cons(car_lv, cdr_lv), {})
+    assert res[car_lv] == 1
+    assert list(res[cdr_lv]) == []
+
+    res = unify(cons(car_lv, cdr_lv), iter([1]), {})
     assert res[car_lv] == 1
     assert list(res[cdr_lv]) == []
 

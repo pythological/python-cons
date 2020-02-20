@@ -122,7 +122,7 @@ class ConsPair(metaclass=ConsType):
         return chain((car_part,), cdr_part)
 
     def __hash__(self):
-        return hash([self.car, self.cdr])
+        return hash((self.car, self.cdr))
 
     def __eq__(self, other):
         return (
