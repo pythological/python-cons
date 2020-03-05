@@ -172,6 +172,24 @@ class MaybeCons(metaclass=MaybeConsType):
         raise NotImplementedError()
 
 
+class ProperSequenceType(ABCMeta):
+    """An abstract type that can be used as an instance check for proper sequences.
+
+    A proper sequence is a sequence according to `cons` but not a `ConsPair`.
+    """
+
+    def __instancecheck__(self, o):
+        return issubclass(type(o), MaybeCons)
+
+
+class ProperSequence(metaclass=ProperSequenceType):
+    """A sequence according to `cons` but not a `ConsPair`."""
+
+    @abstractmethod
+    def __init__(self):
+        raise NotImplementedError()
+
+
 class NonCons(ABC):
     """A class (and its subclasses) that is *not* considered a cons.
 

@@ -7,7 +7,14 @@ from collections.abc import Iterator
 from unification import unify, reify, var
 
 from cons import cons, car, cdr
-from cons.core import ConsPair, MaybeCons, ConsNull, ConsError, NonCons
+from cons.core import (
+    ConsPair,
+    MaybeCons,
+    ConsNull,
+    ConsError,
+    NonCons,
+    ProperSequence,
+)
 
 
 def test_noncons_type():
@@ -66,6 +73,19 @@ def test_cons_null():
     assert not isinstance(OrderedDict([(1, 2)]), ConsNull)
     assert not isinstance(iter([1]), ConsNull)
     assert not isinstance(cycle([5]), ConsNull)
+
+
+def test_proper_sequence_type():
+
+    with pytest.raises(TypeError):
+        ProperSequence()
+
+    assert not isinstance(cons(1, 2), ProperSequence)
+    assert not isinstance(cons(1, 2, 3), ProperSequence)
+    assert not isinstance("hi", ProperSequence)
+    assert not isinstance(1, ProperSequence)
+    assert isinstance([], ProperSequence)
+    assert isinstance((1, 2, 3), ProperSequence)
 
 
 def test_cons_join():
