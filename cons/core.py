@@ -172,7 +172,7 @@ class MaybeCons(metaclass=MaybeConsType):
         raise NotImplementedError()
 
 
-class ProperSequenceType(ABCMeta):
+class ProperSequenceType(MaybeConsType):
     """An abstract type that can be used as an instance check for proper sequences.
 
     A proper sequence is a sequence according to `cons` but not a `ConsPair`.

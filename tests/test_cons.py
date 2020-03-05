@@ -87,6 +87,12 @@ def test_proper_sequence_type():
     assert isinstance([], ProperSequence)
     assert isinstance((1, 2, 3), ProperSequence)
 
+    assert not issubclass(ConsPair, ProperSequence)
+    assert not issubclass(str, ProperSequence)
+    assert not issubclass(int, ProperSequence)
+    assert issubclass(list, ProperSequence)
+    assert issubclass(tuple, ProperSequence)
+
 
 def test_cons_join():
 
