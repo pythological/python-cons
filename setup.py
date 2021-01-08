@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-import versioneer
-
 from os.path import exists
+
 from setuptools import find_packages, setup
 
+import versioneer
 
 setup(
     name="cons",
@@ -26,7 +26,7 @@ setup(
         "Intended Audience :: Science/Research",
         "Intended Audience :: Developers",
         "License :: DFSG approved",
-        "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+        "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",  # noqa: E501
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",

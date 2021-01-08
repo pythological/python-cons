@@ -1,20 +1,12 @@
-import pytest
-
-from itertools import chain, cycle
 from collections import OrderedDict, UserList
 from collections.abc import Iterator
+from itertools import chain, cycle
 
-from unification import unify, reify, var
+import pytest
+from unification import reify, unify, var
 
-from cons import cons, car, cdr
-from cons.core import (
-    ConsPair,
-    MaybeCons,
-    ConsNull,
-    ConsError,
-    NonCons,
-    ProperSequence,
-)
+from cons import car, cdr, cons
+from cons.core import ConsError, ConsNull, ConsPair, MaybeCons, NonCons, ProperSequence
 
 
 def test_noncons_type():
@@ -111,9 +103,7 @@ def test_cons_join():
     assert cons("a", ["b", "c"]) == ["a", "b", "c"]
     assert cons("a", ("b", "c")) == ("a", "b", "c")
     assert type(cons(("a", 1), {"b": 2})) == ConsPair
-    assert cons(("a", 1), OrderedDict({"b": 2})) == OrderedDict(
-        [("a", 1), ("b", 2)]
-    )
+    assert cons(("a", 1), OrderedDict({"b": 2})) == OrderedDict([("a", 1), ("b", 2)])
 
     assert cons(["a", "b"], "c") == ConsPair(["a", "b"], "c")
 
