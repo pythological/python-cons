@@ -1,12 +1,10 @@
 [![Build Status](https://travis-ci.org/pythological/python-cons.svg?branch=master)](https://travis-ci.org/pythological/python-cons) [![Coverage Status](https://coveralls.io/repos/github/pythological/python-cons/badge.svg?branch=master)](https://coveralls.io/github/pythological/python-cons?branch=master) [![PyPI](https://img.shields.io/pypi/v/cons)](https://pypi.org/project/cons/)
 
-Python `cons`
-==================
+# Python `cons`
 
 An implementation of [`cons`][cons] in Python.
 
-Usage and Design
-======================
+## Usage and Design
 
 The `cons` package attempts to emulate the semantics of Lisp/Scheme's `cons` as closely as possible while incorporating all the built-in Python sequence types:
 ```python
@@ -52,8 +50,7 @@ ConsPair('a' 'a string')
 This setting can be overridden and other types can be similarly excluded from consideration by registering classes with the `abc`-based classes `MaybeCons` and `NonCons`.
 
 
-Features
-===========
+## Features
 
 * Built-in support for the standard Python ordered sequence types: i.e. `list`, `tuple`, `Iterator`, `OrderedDict`.
 ```python
@@ -77,13 +74,29 @@ OrderedDict([('a', 1)])
 
 ```
 
-Installation
-================
+## Installation
 
 ```python
 pip install cons
 ```
 
+### Development
+
+First obtain the project source:
+```bash
+git clone git@github.com:pythological/python-cons.git
+```
+
+Create a virtual environment and install the development dependencies:
+```bash
+$ pip install -r requirements.txt
+```
+
+Set up `pre-commit` hooks:
+
+```bash
+$ pre-commit install --install-hooks
+```
 
 [cons]: https://en.wikipedia.org/wiki/Cons
 [un]: https://github.com/pythological/unification

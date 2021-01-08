@@ -1,9 +1,9 @@
-from abc import ABCMeta, ABC, abstractmethod
-from functools import reduce
-from operator import length_hint
-from itertools import chain, islice
+from abc import ABC, ABCMeta, abstractmethod
 from collections import OrderedDict, UserString
-from collections.abc import Iterator, Sequence, ItemsView, ByteString, Mapping
+from collections.abc import ByteString, ItemsView, Iterator, Mapping, Sequence
+from functools import reduce
+from itertools import chain, islice
+from operator import length_hint
 
 from multipledispatch import dispatch
 
@@ -17,10 +17,7 @@ class ConsError(ValueError):
 
 class ConsType(ABCMeta):
     def __instancecheck__(self, o):
-        return (
-            issubclass(type(o), (ConsPair, MaybeCons))
-            and length_hint(o, 0) > 0
-        )
+        return issubclass(type(o), (ConsPair, MaybeCons)) and length_hint(o, 0) > 0
 
 
 class ConsNullType(ABCMeta):
@@ -86,9 +83,9 @@ class ConsPair(metaclass=ConsType):
         elif len(parts) == 2:
             car_part, cdr_part = parts
 
-            if isinstance(
-                cdr_part, (ConsNull, ConsPair, Iterator)
-            ) and not issubclass(type(cdr_part), ConsPair):
+            if isinstance(cdr_part, (ConsNull, ConsPair, Iterator)) and not issubclass(
+                type(cdr_part), ConsPair
+            ):
                 res = cls.cons_merge(car_part, cdr_part)
             else:
                 instance = super(ConsPair, cls).__new__(cls)
@@ -146,9 +143,7 @@ cons = ConsPair
 class MaybeConsType(ABCMeta):
     def __subclasscheck__(self, o):
 
-        if issubclass(o, tuple(_cdr.funcs.keys())) and not issubclass(
-            o, NonCons
-        ):
+        if issubclass(o, tuple(_cdr.funcs.keys())) and not issubclass(o, NonCons):
             return True
 
         return False
@@ -165,7 +160,7 @@ class MaybeCons(metaclass=MaybeConsType):
     The potential cons types are drawn from the implemented `cdr` dispatch
     functions.
 
-    """
+    """  # noqa: E501
 
     @abstractmethod
     def __init__(self):

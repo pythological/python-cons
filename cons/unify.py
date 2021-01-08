@@ -1,13 +1,9 @@
-from itertools import tee
 from collections.abc import Iterator, Mapping
+from itertools import tee
 
-from unification.core import (
-    _unify,
-    _reify,
-    construction_sentinel,
-)
+from unification.core import _reify, _unify, construction_sentinel
 
-from .core import car, cdr, ConsPair, cons, MaybeCons, ConsError
+from .core import ConsError, ConsPair, MaybeCons, car, cdr, cons
 
 
 def _unify_Cons(lcons, rcons, s):
