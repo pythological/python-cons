@@ -1,7 +1,7 @@
 exclude: |
     (?x)^(
         versioneer\.py|
-        unification/_version\.py|
+        cons/_version\.py|
         doc/.*|
         bin/.*
     )$
