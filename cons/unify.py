@@ -7,7 +7,6 @@ from .core import ConsError, ConsPair, MaybeCons, car, cdr, cons
 
 
 def _unify_Cons(lcons, rcons, s):
-
     lcons_ = lcons
     rcons_ = rcons
 

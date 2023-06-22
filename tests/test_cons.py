@@ -10,7 +10,6 @@ from cons.core import ConsError, ConsNull, ConsPair, MaybeCons, NonCons, ProperS
 
 
 def test_noncons_type():
-
     with pytest.raises(TypeError):
         NonCons()
 
@@ -50,7 +49,6 @@ def test_cons_type():
 
 
 def test_cons_null():
-
     with pytest.raises(TypeError):
         ConsNull()
 
@@ -68,7 +66,6 @@ def test_cons_null():
 
 
 def test_proper_sequence_type():
-
     with pytest.raises(TypeError):
         ProperSequence()
 
@@ -87,7 +84,6 @@ def test_proper_sequence_type():
 
 
 def test_cons_join():
-
     with pytest.raises(ValueError):
         cons("a")
 
@@ -138,7 +134,6 @@ def test_cons_class():
 
 
 def test_car_cdr():
-
     with pytest.raises(ConsError):
         car(object())
 
