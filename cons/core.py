@@ -100,7 +100,6 @@ class ConsPair(metaclass=ConsType):
 
     @classmethod
     def cons_merge(cls, car_part, cdr_part):
-
         if cdr_part is None:
             cdr_part = default_ConsNull()
 
@@ -108,7 +107,6 @@ class ConsPair(metaclass=ConsType):
             cdr_part = cdr_part.items()
 
         if isinstance(cdr_part, ItemsView):
-
             return OrderedDict(chain((car_part,), cdr_part))
 
         elif hasattr(cdr_part, "__add__") or hasattr(cdr_part, "__radd__"):
@@ -142,7 +140,6 @@ cons = ConsPair
 
 class MaybeConsType(ABCMeta):
     def __subclasscheck__(self, o):
-
         if issubclass(o, tuple(_cdr.funcs.keys())) and not issubclass(o, NonCons):
             return True
 
